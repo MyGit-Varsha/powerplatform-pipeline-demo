@@ -1,0 +1,29 @@
+name: Export Power Platform Solution
+
+on:
+  workflow_dispatch:  # lets you run this manually
+
+jobs:
+  export-solution:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Power Platform CLI
+        run: npm install -g pac
+
+      - name: Authenticate with Power Platform
+        run: pac auth create --username ${{ secrets.PP_USER }} --password ${{ secrets.PP_PASS }} --url https://org94b5de6f.crm.dynamics.com
+
+      - name: Export solution
+        run: |
+          mkdir -p export
+          pac solution export --name YourSolutionName --path ./export/solution.zip --managed false
+          pac solution unpack --zipfile ./export/solution.zip --folder ./unpacked --allowDelete
